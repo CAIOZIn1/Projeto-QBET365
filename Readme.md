@@ -1,0 +1,1 @@
+Projeto cujo intuito visa utilizar API's e banco de dados de forma integrada. A atividade foi proposta pelo professor Thiago Macklin, da rede integrada Sesi Senai. O software funcionará também como atividade para o bimestre atual (2° bimestre - 2022 - 3° ano do Ensino Médio).
