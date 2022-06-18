@@ -1,9 +1,12 @@
+from itertools import count
+from msilib.schema import ComboBox
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtGui import *
 from PyQt5 import sip
 import sys
+import pymysql
 
 
 cu = 0
@@ -76,7 +79,7 @@ class MainWindow(object):
         #botões
         self.botao_enter = QPushButton('ENTER', parent=self.frame)
         self.botao_enter.setStyleSheet('background-color:#52057B; color:black; border:1px groove; border-radius:15px')
-        self.botao_enter.clicked.connect(self.animation)
+        self.botao_enter.clicked.connect(self.auteticacao_username)
         self.botao_enter.resize(70, 35)
         self.botao_enter.move(120, 270)
         self.botao_enter.show()
@@ -88,6 +91,34 @@ class MainWindow(object):
         self.botao_create.resize(90, 35)
         self.botao_create.move(500, 555)
         self.botao_create.show()
+
+    def auteticacao_username(self):
+        self.conexao = pymysql.connect(
+                host='localhost',
+                user='root',
+                passwd=''
+            )
+
+        self.cursor = self.conexao.cursor()
+        self.cursor.execute('''use QBET365''')
+
+        self.username = self.entrada.text()
+        self.password = self.entrada2.text()
+        
+        try:
+            self.cursor.execute(f"select senha from cadastro where nome='{self.username}' ")
+            dados = self.cursor.fetchall()
+            self.conexao.commit()
+
+            if self.password == dados[0][0]:
+                self.animation()
+                
+        except:
+            self.msg = QMessageBox()
+            self.msg.setWindowTitle("ERROR")
+            self.msg.setText("Incorrect login or password")
+            self.msg.setIcon(QMessageBox.Critical)
+            self.msg.exec_()
 
 
     def animation(self):
@@ -124,7 +155,7 @@ class MainWindow(object):
         if cu > 100:
             self.timer.stop()
             self.delete_login()
-        cu += 50
+        cu += 5
 
 
     def delete_login(self):
@@ -191,7 +222,7 @@ class MainWindow(object):
         self.label_user = QLabel(parent=self.frame)
         self.label_user.setPixmap(QPixmap('imagens/user.jpg'))
         self.label_user.resize(140,135)
-        self.label_user.move(80, -15)
+        self.label_user.move(80, -20)
 
         self.abstract_images = QLabel(parent=self.main_frame_create)
         self.abstract_images.setPixmap(QPixmap('imagens/abstract image-1.jpg'))
@@ -211,6 +242,7 @@ class MainWindow(object):
         #botões
         self.botao_create = QPushButton('CREATE', parent=self.frame)
         self.botao_create.setStyleSheet('background-color:#52057B; color:black; border:1px groove; border-radius:15px')
+        self.botao_create.clicked.connect(self.login_create)
         self.botao_create.resize(70, 35)
         self.botao_create.move(120, 310)
 
@@ -246,7 +278,76 @@ class MainWindow(object):
         self.label_user.show()
         self.abstract_images.show()
         self.sun_image.show()
-        self.botao_voltar.show()
+        self.botao_voltar.show()     
+
+
+    def login_create(self):
+        
+        try:
+            self.conexao = pymysql.connect(
+                host='localhost',
+                user='root',
+                passwd=''
+            )
+
+            self.username = self.entrada_username.text()
+            self.email = self.entrada_email.text()
+            self.password = self.entrada_password.text()
+
+            self.cursor = self.conexao.cursor()
+            self.cursor.execute('''use QBET365''')
+            self.cursor.execute(f'''insert into cadastro (nome, email, senha) values ('{self.username}', '{self.email}', '{self.password}')''')
+            self.conexao.commit()
+
+            self.label_correct = QLabel(parent=self.frame)
+            self.label_correct.setPixmap(QPixmap('imagens/correct.png'))
+            self.label_correct.setStyleSheet('background-color:transparent')
+            self.label_correct.resize(100,100)
+            self.label_correct.move(200, 280)
+            self.label_correct.show()
+
+            if self.username == '':
+                self.msg = QMessageBox()
+                self.msg.setWindowTitle("Attention")
+                self.msg.setText("you didn't put the username in your login")
+                self.msg.setIcon(QMessageBox.Critical)
+                self.msg.exec_()
+
+                self.label_error = QLabel(parent=self.frame)
+                self.label_error.setPixmap(QPixmap('imagens/error.png'))
+                self.label_error.setStyleSheet('background-color:transparent')
+                self.label_error.resize(100,100)
+                self.label_error.move(200, 280)
+                self.label_error.show()
+
+            if self.password == '':
+                self.msg = QMessageBox()
+                self.msg.setWindowTitle("Attention")
+                self.msg.setText("you didn't fill in the password field")
+                self.msg.setIcon(QMessageBox.Critical)
+                self.msg.exec_()
+
+                self.label_error = QLabel(parent=self.frame)
+                self.label_error.setPixmap(QPixmap('imagens/error.png'))
+                self.label_error.setStyleSheet('background-color:transparent')
+                self.label_error.resize(100,100)
+                self.label_error.move(200, 280)
+                self.label_error.show()
+            
+            if self.email == '':
+                self.msg = QMessageBox()
+                self.msg.setWindowTitle("ERROR")
+                self.msg.setText("The login was created but you did not enter the email")
+                self.msg.setStandardButtons(QMessageBox.Retry | QMessageBox.Ignore | QMessageBox.Cancel)
+                self.msg.exec_() 
+
+        except:
+            self.msg = QMessageBox()
+            self.msg.setWindowTitle("Attention")
+            self.msg.setText("Email already in use")
+            self.msg.setStandardButtons(QMessageBox.Retry | QMessageBox.Ignore | QMessageBox.Cancel)
+            self.msg.exec_()
+
 
     def back_to_login(self):
 
