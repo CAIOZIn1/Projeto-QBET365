@@ -1,8 +1,5 @@
-from itertools import count
-from msilib.schema import ComboBox
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
-from PyQt5.QtGui import QPixmap
 from PyQt5.QtGui import *
 from PyQt5 import sip
 import sys
@@ -298,7 +295,7 @@ class MainWindow(object):
             self.cursor.execute('''use QBET365''')
             self.cursor.execute(f'''insert into cadastro (nome, email, senha) values ('{self.username}', '{self.email}', '{self.password}')''')
             self.conexao.commit()
-
+            
             self.label_correct = QLabel(parent=self.frame)
             self.label_correct.setPixmap(QPixmap('imagens/correct.png'))
             self.label_correct.setStyleSheet('background-color:transparent')
@@ -312,6 +309,8 @@ class MainWindow(object):
                 self.msg.setText("you didn't put the username in your login")
                 self.msg.setIcon(QMessageBox.Critical)
                 self.msg.exec_()
+                self.cursor.execute(f'''delete from cadastro where nome='{self.username}' ''')
+                self.conexao.commit()
 
                 self.label_error = QLabel(parent=self.frame)
                 self.label_error.setPixmap(QPixmap('imagens/error.png'))
@@ -326,6 +325,8 @@ class MainWindow(object):
                 self.msg.setText("you didn't fill in the password field")
                 self.msg.setIcon(QMessageBox.Critical)
                 self.msg.exec_()
+                self.cursor.execute(f'''delete from cadastro where nome='{self.username}' ''')
+                self.conexao.commit()
 
                 self.label_error = QLabel(parent=self.frame)
                 self.label_error.setPixmap(QPixmap('imagens/error.png'))
