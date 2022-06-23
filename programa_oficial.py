@@ -4,6 +4,8 @@ from PyQt5.QtGui import *
 from PyQt5 import sip
 import sys
 import pymysql
+import json
+import requests
 
 
 cu = 0
@@ -41,7 +43,7 @@ class MainWindow(object):
 
         #imagens
         self.label_imagem_abstract = QLabel(parent=self.main_frame)
-        self.label_imagem_abstract.setPixmap(QPixmap('imagens/abstract image-1.jpg'))
+        self.label_imagem_abstract.setPixmap(QPixmap('imagens/abstract image-2.jpg'))
         self.label_imagem_abstract.resize(201,150)
         self.label_imagem_abstract.move(-35,500)
         self.label_imagem_abstract.show()
@@ -383,14 +385,6 @@ class MainWindow(object):
         self.abstract_image1.move(200, -50)
         self.abstract_image1.show()
 
-        #self.label_gif = QLabel(parent=self.main_frame)
-        #self.gif = QMovie('imagens/rocket.gif')
-        #self.label_gif.resize(500, 100)
-        #self.label_gif.setMovie(self.gif)
-        #self.label_gif.move(60, 100)
-        #self.gif.start()
-        #self.label_gif.show()
-
         self.frame_choice = QFrame(self.main_frame)
         self.frame_choice.setGeometry(QRect(150, 130, 301, 331))
         self.frame_choice.setStyleSheet(
@@ -514,6 +508,48 @@ class MainWindow(object):
         self.frame_bets.setStyleSheet('background-color:white; border:25px solid; border-radius:15px; border-color:white')
         self.frame_bets.show()
 
+        self.image_cross = QLabel(self.frame_bets)
+        self.image_cross.setPixmap(QPixmap("imagens/cross"))
+        self.image_cross.resize(300, 200)
+        self.image_cross.move(40, 120)
+        self.image_cross.show()
+
+        self.leitor = requests.get('https://betsapi.com/docs/samples/bet365_inplay.json')
+        self.leitor = self.leitor.json()
+
+        self.od = self.leitor['results'][0][86]['OD']
+        self.nome_od = self.leitor['results'][0][86]['NA']
+        self.od_2 = self.leitor['results'][0][85]['OD']
+        self.nome_od_2 = self.leitor['results'][0][85]['NA']
+        
+        self.best_od = QLabel(self.od, self.frame_bets)
+        self.best_od.setFont(QFont('Monteserrat', 22))
+        self.best_od.resize(150, 100)
+        self.best_od.move(115, 115)
+        self.best_od.show()
+
+        self.best_od_2 = QLabel(self.od_2, self.frame_bets)
+        self.best_od_2.setFont(QFont('Monteserrat', 22))
+        self.best_od_2.resize(150, 100)
+        self.best_od_2.move(110, 245)
+        self.best_od_2.show()
+
+        self.plus =  QPushButton('↗',self.frame_bets)
+        self.plus.setFont(QFont('Monteserrat', 22))
+        self.plus.setStyleSheet('color:blue')
+        self.plus.clicked.connect(self.atleta1)
+        self.plus.resize(80,80)
+        self.plus.move(222, 126)
+        self.plus.show()
+
+        self.plus2 =  QPushButton('↗',self.frame_bets)
+        self.plus2.setFont(QFont('Monteserrat', 22))
+        self.plus2.setStyleSheet('color:blue')
+        self.plus2.clicked.connect(self.atleta2)
+        self.plus2.resize(80,80)
+        self.plus2.move(222, 256)
+        self.plus2.show()
+
         self.image_crown = QLabel(self.main_frame)
         self.image_crown.setPixmap(QPixmap("imagens/crown"))
         self.image_crown.setStyleSheet('background-color:transparent')
@@ -526,7 +562,6 @@ class MainWindow(object):
         self.best_odd.resize(300, 100)
         self.best_odd.move(55, 15)
         self.best_odd.show()
-
 
         self.button_historic =  QPushButton(self.main_frame)
         self.button_historic.setStyleSheet('background-image: url(imagens/button historic)')
@@ -557,6 +592,23 @@ class MainWindow(object):
         self.button_leave.resize(70,35)
         self.button_leave.move(80, 550)
         self.button_leave.show()
+
+    def atleta1(self):
+        self.msg = QMessageBox()
+        self.msg.setIcon(QMessageBox.Information)
+        self.msg.setWindowTitle("INFO")
+        self.msg.setText(f'Atleta: {self.nome_od}')
+        self.msg.setStandardButtons(QMessageBox.Cancel)
+        self.msg.exec_() 
+
+    def atleta2(self):
+        self.msg = QMessageBox()
+        self.msg.setIcon(QMessageBox.Information)
+        self.msg.setWindowTitle("INFO")
+        self.msg.setText(f'Atleta: {self.nome_od_2}')
+        self.msg.setStandardButtons(QMessageBox.Cancel)
+        self.msg.exec_() 
+
 
     def future(self):
         sip.delete(self.main_frame)
@@ -699,7 +751,6 @@ class MainWindow(object):
     def janela_principal_delete(self):
         sip.delete(self.main_frame)
         self.janela_principal()
-
 
 
 app = QApplication(sys.argv)
